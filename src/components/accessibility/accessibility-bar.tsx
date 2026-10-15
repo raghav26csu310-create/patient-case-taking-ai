@@ -1,18 +1,28 @@
 "use client";
 
 import React, { useState } from "react";
-import { Eye, Languages, Type } from "lucide-react";
+import { Eye, Languages, Type, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useCaseGraph } from "@/domain/case-graph/case-graph-store";
+import { PatientLanguage } from "@/domain/patient/types";
+import { cn } from "@/lib/utils";
 
 export function AccessibilityBar() {
+  const { caseGraph, setLanguage, isLowLiteracyMode, toggleLowLiteracyMode } = useCaseGraph();
   const [textSize, setTextSize] = useState<"normal" | "large" | "xlarge">("normal");
   const [isHighContrast, setIsHighContrast] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState("hi");
 
   const cycleTextSize = () => {
-    if (textSize === "normal") setTextSize("large");
-    else if (textSize === "large") setTextSize("xlarge");
-    else setTextSize("normal");
+    if (textSize === "normal") {
+      setTextSize("large");
+      document.documentElement.style.fontSize = "18px";
+    } else if (textSize === "large") {
+      setTextSize("xlarge");
+      document.documentElement.style.fontSize = "20px";
+    } else {
+      setTextSize("normal");
+      document.documentElement.style.fontSize = "16px";
+    }
   };
 
   const toggleHighContrast = () => {
@@ -23,7 +33,7 @@ export function AccessibilityBar() {
   return (
     <aside
       aria-label="Accessibility & Localization Bar"
-      className="w-full bg-[var(--surface-elevated)] border-b border-[var(--border-subtle)] px-4 py-2 text-xs"
+      className="w-full bg-[var(--surface-elevated)] border-b border-[var(--border-subtle)] px-4 py-2 text-xs select-none"
     >
       <div className="mx-auto max-w-7xl flex flex-wrap items-center justify-between gap-3">
         {/* Language Selection */}
@@ -31,8 +41,8 @@ export function AccessibilityBar() {
           <Languages className="w-3.5 h-3.5 text-[var(--muted-foreground)]" aria-hidden="true" />
           <span className="font-medium text-[var(--muted-foreground)]">भाषा / Language:</span>
           <select
-            value={selectedLanguage}
-            onChange={(e) => setSelectedLanguage(e.target.value)}
+            value={caseGraph.session.language}
+            onChange={(e) => setLanguage(e.target.value as PatientLanguage)}
             className="rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-0.5 text-xs text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--focus)] cursor-pointer"
             aria-label="Select display and speech language"
           >
@@ -47,7 +57,23 @@ export function AccessibilityBar() {
         </div>
 
         {/* Accessibility Quick Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Low-Literacy / Easy Mode Toggle */}
+          <button
+            type="button"
+            onClick={toggleLowLiteracyMode}
+            className={cn(
+              "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold transition-all border cursor-pointer",
+              isLowLiteracyMode
+                ? "bg-[var(--primary)] text-white border-[var(--primary)] shadow-xs"
+                : "bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--muted)]"
+            )}
+            title="Toggle Large Text & Simplified Audio Mode"
+          >
+            <Volume2 className="w-3.5 h-3.5" />
+            <span>{isLowLiteracyMode ? "सरल मोड सक्रिय (Easy Audio ON)" : "सरल मोड (Easy Mode)"}</span>
+          </button>
+
           <Button
             variant="ghost"
             size="sm"

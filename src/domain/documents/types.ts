@@ -11,9 +11,13 @@ export interface LabObservation {
   id: string;
   testName: string;
   measuredValue: string;
+  /** Alias for measuredValue used in UI display */
+  value?: string;
   unit: string;
   referenceRange: string;
   interpretation: "NORMAL" | "HIGH" | "LOW" | "CRITICAL" | "INDETERMINATE";
+  /** Derived flag for UI rendering: true when interpretation is HIGH, LOW, or CRITICAL */
+  isAbnormal?: boolean;
   evidenceCitationId: string;
 }
 
@@ -36,6 +40,10 @@ export interface DocumentArtifact {
   uploadedAt: string;
   pageCount: number;
   rawOcrText?: string;
+  /** Short preview snippet for clinician cockpit display (first ~200 chars of rawOcrText) */
+  extractedTextSnippet?: string;
+  /** OCR confidence score 0-1 */
+  ocrConfidence?: number;
   extractedFacts: ExtractedDocumentFact[];
   labObservations: LabObservation[];
   previewUri?: string;

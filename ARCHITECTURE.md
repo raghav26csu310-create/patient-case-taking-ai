@@ -1,9 +1,9 @@
 # SYSTEM ARCHITECTURE SPECIFICATION
 ## SIH26047 — Patient Case-Taking Software
 
-> **Document Version**: 2.1 (Phase 1 Baseline)  
-> **Status**: Phase 1 Scaffolding & Clinical Design System Baseline Established  
-> **Date**: September 2026  
+> **Document Version**: 3.0 (Master Autonomous Build Milestone Complete)  
+> **Status**: Full Dual-Surface, Multimodal Voice, 3D Spatial Wireframe, Deterministic Triage, Provenance Graph & ABDM Sandbox Implemented  
+> **Date**: October 2026  
 
 ---
 

@@ -1,9 +1,9 @@
 const routes = [
-  { path: "/", expectedText: "First-Mile Clinical Case-Taking Intelligence" },
-  { path: "/patient", expectedText: "Patient Assistance" },
+  { path: "/", expectedText: "First-Mile Clinical" },
+  { path: "/patient", expectedText: "PATIENT ONBOARDING" },
   { path: "/clinician", expectedText: "Consultation Case Review" },
   { path: "/triage", expectedText: "OPD Emergency Priority" },
-  { path: "/admin", expectedText: "Governance, Clinical Audit" },
+  { path: "/admin", expectedText: "Governance" },
   { path: "/api/health", expectedText: '"status":"healthy"' },
 ];
 

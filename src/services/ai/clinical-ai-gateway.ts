@@ -44,8 +44,12 @@ export class MockClinicalAIService implements ClinicalAIService {
       ],
       hpiNarrative:
         "[DEMO / SYNTHETIC CASE] 54-year-old male with dull aching chest pressure since 48 hours, worsening on exertion. Denies fever or cough.",
-      pastMedicalHistory: ["[DEMO] Type 2 Diabetes Mellitus (5 years)", "[DEMO] Hypertension (3 years)"],
-      surgicalHistory: ["None reported"],
+      pastMedicalHistory: [
+        { id: "pmh-mock-1", condition: "Type 2 Diabetes Mellitus", diagnosedDuration: "5 years", status: "ACTIVE" },
+        { id: "pmh-mock-2", condition: "Hypertension", diagnosedDuration: "3 years", status: "ACTIVE" },
+      ],
+      surgicalHistory: [],
+      timelineEvents: [],
       currentMedications: [
         {
           id: "med-mock-1",

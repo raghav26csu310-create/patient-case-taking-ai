@@ -20,10 +20,11 @@ export const DEMO_CLINICAL_SUMMARY: ClinicalSummary = {
   hpiNarrative:
     "[DEMO / SYNTHETIC CASE] 54-year-old male presenting with dull aching retrosternal heaviness since 48 hours, aggravated by climbing stairs. Patient reports sensation radiating to left inner arm. Denies fever, breathlessness, or diaphoresis.",
   pastMedicalHistory: [
-    "[DEMO] Type 2 Diabetes Mellitus (Diagnosed 5 years ago)",
-    "[DEMO] Essential Hypertension (Diagnosed 3 years ago)",
+    { id: "pmh-demo-1", condition: "Type 2 Diabetes Mellitus", diagnosedDuration: "5 years ago", status: "ACTIVE" },
+    { id: "pmh-demo-2", condition: "Essential Hypertension", diagnosedDuration: "3 years ago", status: "ACTIVE" },
   ],
-  surgicalHistory: ["No prior surgical procedures reported"],
+  surgicalHistory: [],
+  timelineEvents: [],
   currentMedications: [
     {
       id: "med-demo-1",
