@@ -364,6 +364,7 @@ export default function PatientSurfacePage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 {[
                   { code: "hi", name: "हिन्दी (Hindi)" },
+                  { code: "hinglish", name: "Hinglish" },
                   { code: "en", name: "English" },
                   { code: "bn", name: "বাংলা (Bengali)" },
                   { code: "ta", name: "தமிழ் (Tamil)" },

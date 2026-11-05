@@ -28,6 +28,7 @@ export interface LanguagePreference {
 
 export const SUPPORTED_LANGUAGES: LanguagePreference[] = [
   { code: "hi", displayName: "Hindi", nativeName: "हिन्दी", direction: "LTR" },
+  { code: "hinglish", displayName: "Hinglish", nativeName: "हिंग्लिश / Hinglish", direction: "LTR" },
   { code: "en", displayName: "English", nativeName: "English", direction: "LTR" },
   { code: "bn", displayName: "Bengali", nativeName: "বাংলা", direction: "LTR" },
   { code: "ta", displayName: "Tamil", nativeName: "தமிழ்", direction: "LTR" },

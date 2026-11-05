@@ -1,352 +1,307 @@
-"use client";
+﻿"use client";
 
-import React from "react";
 import Link from "next/link";
 import {
   ArrowRight,
-  Stethoscope,
-  User,
-  ShieldAlert,
-  Settings,
-  Layers,
-  Sparkles,
-  HeartPulse,
-  FileCheck2,
-  Lock,
-  Globe2,
+  Camera,
   CheckCircle2,
-  Cpu,
-  ActivitySquare,
-  PlayCircle,
-  FileSpreadsheet,
+  FileText,
+  HeartPulse,
+  Mic,
+  ShieldCheck,
+  Sparkles,
+  Stethoscope,
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ModeBadge } from "@/components/ui/mode-badge";
-import { SpatialLandingCanvas } from "@/components/spatial/spatial-landing-canvas";
 import { useCaseGraph } from "@/domain/case-graph/case-graph-store";
-import { SYNTHETIC_SCENARIOS } from "@/mocks/scenarios/synthetic-scenarios";
 
-export default function PortalHomePage() {
-  const { caseGraph, loadScenario } = useCaseGraph();
+const benefits = [
+  {
+    title: "TALK",
+    description: "Explain your health concern in your own language.",
+    icon: Mic,
+  },
+  {
+    title: "SHARE",
+    description: "Take photos of your prescriptions and medical reports.",
+    icon: Camera,
+  },
+  {
+    title: "PREPARE",
+    description: "Review your organized health story before sharing it with your doctor.",
+    icon: ShieldCheck,
+  },
+];
 
-  const surfaceCards = [
-    {
-      href: "/patient",
-      title: "Patient Surface (Kiosk / Mobile)",
-      badge: "Accessibility & Multilingual",
-      icon: <User className="w-6 h-6 text-[var(--primary)]" />,
-      description:
-        "Designed for elderly, low-literacy, and multilingual patients. Features vernacular voice STT/TTS, 2D anatomical pain map, 3D holographic wireframe, and granular DPDP consent.",
-      actionText: "Open Patient Kiosk",
-      status: caseGraph.session.status,
-    },
-    {
-      href: "/clinician",
-      title: "Clinician Cockpit (Desktop)",
-      badge: "Sub-30s Consultation Review",
-      icon: <Stethoscope className="w-6 h-6 text-[var(--primary)]" />,
-      description:
-        "High-density clinical case sheet with chronological timeline, interactive [E1]-[E4] evidence provenance citations, inline physician editing, and 1-click consultation verification.",
-      actionText: "Open Clinician Cockpit",
-      status: caseGraph.isPhysicianVerified ? "VERIFIED" : "PENDING_DOCTOR_REVIEW",
-    },
-    {
-      href: "/triage",
-      title: "Triage & Emergency Queue",
-      badge: "Deterministic Safety Rules",
-      icon: <ShieldAlert className="w-6 h-6 text-[var(--warning)]" />,
-      description:
-        "Deterministic red-flag rules isolated from LLMs. Automatically escalates suspected acute coronary syndrome, FAST stroke signs, or severe respiratory distress to nursing bays.",
-      actionText: "Open Triage Workspace",
-      status: `${caseGraph.triageAlerts.length} Active Alert(s)`,
-    },
-    {
-      href: "/admin",
-      title: "Admin & Interoperability",
-      badge: "DPDP 2023 & ABDM FHIR R4",
-      icon: <Settings className="w-6 h-6 text-[var(--muted-foreground)]" />,
-      description:
-        "Hospital governance, 24-hour ephemeral audio retention enforcement, ABDM M1/M2/M3 gateway sandboxing, and FHIR R4 clinical document bundle generation.",
-      actionText: "Open Admin & Audit",
-      status: "ABDM Sandbox Active",
-    },
-  ];
+const journey = [
+  { step: "1", title: "Identify", description: "Start with your visit and preferred language." },
+  { step: "2", title: "Converse", description: "Tell your story in your own words." },
+  { step: "3", title: "Scan", description: "Upload prescriptions, reports, and notes." },
+  { step: "4", title: "Summarize", description: "We organize your details into a clear story." },
+  { step: "5", title: "Consult", description: "Share a prepared brief with your doctor." },
+];
+
+const translations: Record<string, any> = {
+  hi: {
+    badge: "SAATHI • आपका नज़रिया",
+    heading: "आइए आपकी स्वास्थ्य कहानी को आसान बनाते हैं।",
+    subheading: "अपनी तकलीफ को अपनी भाषा में बताइए, रिपोर्ट अपलोड कीजिए, और अपने डॉक्टर से मिलने से पहले अपनी जानकारी व्यवस्थित करिए।",
+    ctaPrimary: "मेरी स्वास्थ्य कहानी शुरू करें",
+    ctaSecondary: "पिछला सत्र जारी रखें",
+    ctaTertiary: "मेरे स्वास्थ्य रिकॉर्ड देखें",
+    ctaQuaternary: "जानें कि मेरी जानकारी कैसे सुरक्षित है",
+    assistantTitle: "मैं SAATHI हूँ",
+    assistantPrompt: "आज आप कैसा महसूस कर रहे हैं?",
+    assistantHelp: "अपनी भाषा में अपने लक्षण बताइए।",
+    listeningLabel: "हिंदी / अंग्रेज़ी में सुन रहा है",
+    storyTitle: "आपकी स्वास्थ्य कहानी",
+    storyMeta: "5 में से 4 चरण",
+    journeyTitle: "TALK",
+    journeyDescription: "अपनी भाषा में अपनी स्वास्थ्य समस्या बताइए।",
+    shareTitle: "SHARE",
+    shareDescription: "अपने प्रिस्क्रिप्शन और मेडिकल रिपोर्ट की फोटो लें।",
+    prepareTitle: "PREPARE",
+    prepareDescription: "डॉक्टर से साझा करने से पहले अपनी स्वास्थ्य कहानी की समीक्षा करें।",
+    supportTitle: "नमस्कार",
+  },
+  en: {
+    badge: "SAATHI • Your Personal AI Health Companion",
+    heading: "Let&apos;s make your health story easier to understand.",
+    subheading: "Tell us how you feel, share your previous medical reports, and let us organize your health information before your doctor&apos;s visit.",
+    ctaPrimary: "START MY HEALTH STORY",
+    ctaSecondary: "Continue Previous Session",
+    ctaTertiary: "Explore My Health Records",
+    ctaQuaternary: "Learn How My Information Is Protected",
+    assistantTitle: "I&apos;m SAATHI",
+    assistantPrompt: "How are you feeling today?",
+    assistantHelp: "Tell me about your symptoms in your own words.",
+    listeningLabel: "Listening in Hindi / English",
+    storyTitle: "Your health story",
+    storyMeta: "4 of 5 steps",
+    journeyTitle: "TALK",
+    journeyDescription: "Explain your health concern in your own language.",
+    shareTitle: "SHARE",
+    shareDescription: "Take photos of your prescriptions and medical reports.",
+    prepareTitle: "PREPARE",
+    prepareDescription: "Review your organized health story before sharing it with your doctor.",
+    supportTitle: "Good morning",
+  },
+  hinglish: {
+    badge: "SAATHI • Aapka personal health companion",
+    heading: "Chalo aapki health story ko easy bana dete hain.",
+    subheading: "Aap bataiye apne symptoms, reports upload kariye, aur doctor visit se pehle hum aapke details ko organize kar denge.",
+    ctaPrimary: "Meri health story shuru karein",
+    ctaSecondary: "Previous session continue karein",
+    ctaTertiary: "Mere records dekhein",
+    ctaQuaternary: "Meri information safe kaise hai, samjhein",
+    assistantTitle: "Main SAATHI hoon",
+    assistantPrompt: "Aaj aapkaise feel kar rahe ho?",
+    assistantHelp: "Apne words mein symptoms bataiye.",
+    listeningLabel: "Hindi / English mein sun rahe hain",
+    storyTitle: "Aapki health story",
+    storyMeta: "5 steps mein se 4",
+    journeyTitle: "TALK",
+    journeyDescription: "Apni health problem apni language mein explain karein.",
+    shareTitle: "SHARE",
+    shareDescription: "Prescription aur reports ki photos lein.",
+    prepareTitle: "PREPARE",
+    prepareDescription: "Doctor ke liye ready hone se pehle apni health story dekh lein.",
+    supportTitle: "Namaste",
+  },
+};
+
+export default function HomePage() {
+  const { caseGraph } = useCaseGraph();
+  const copy = translations[caseGraph.session.language] ?? translations.en;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex flex-col gap-8">
-      {/* Hero Section with 3D Spatial Canvas */}
-      <section className="relative rounded-3xl border border-[var(--border)] bg-gradient-to-b from-[var(--surface-elevated)] to-[var(--surface)] p-6 sm:p-10 shadow-sm overflow-hidden">
-        {/* Background 3D Spatial Holographic Canvas */}
-        <div className="absolute inset-0 z-0 opacity-40">
-          <SpatialLandingCanvas className="w-full h-full" />
-        </div>
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-[radial-gradient(circle_at_top_left,_rgba(147,197,253,0.35),_transparent_30%),linear-gradient(135deg,#f9fbff_0%,#edf7ff_50%,#f4f0ff_100%)] p-6 shadow-[0_30px_80px_rgba(37,99,235,0.08)] sm:p-10">
+        <div className="absolute -left-12 top-10 h-40 w-40 rounded-full bg-cyan-200/40 blur-3xl" />
+        <div className="absolute -right-8 bottom-0 h-48 w-48 rounded-full bg-violet-200/50 blur-3xl" />
 
-        <div className="relative z-10 flex flex-col gap-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <Badge variant="primary-muted" className="gap-1.5 py-1 px-3">
-                <Sparkles className="w-3.5 h-3.5 text-[var(--primary)]" />
-                SIH26047 • Smart India Hackathon 2026
-              </Badge>
-              <ModeBadge />
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="font-mono text-xs">
-                Active LTS Next.js 16 • React 19
-              </Badge>
-              <Badge variant="success" className="font-mono text-xs">
-                FHIR R4 Ready
-              </Badge>
-            </div>
-          </div>
-
-          <div className="max-w-3xl flex flex-col gap-3">
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-[var(--foreground)] leading-tight">
-              First-Mile Clinical Intake &amp; Case-Taking AI
-            </h1>
-            <p className="text-base sm:text-lg text-[var(--muted-foreground)] leading-relaxed">
-              Empowering high-volume Indian OPDs to transform fragmented patient stories, vernacular voice utterances,
-              and paper prescriptions into structured, evidence-backed clinical summaries with sub-30-second physician
-              verification.
-            </p>
-          </div>
-
-          {/* Active Case Live Status Banner */}
-          <div className="p-4 rounded-2xl border border-[var(--primary)]/30 bg-[var(--surface)]/90 backdrop-blur-md flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[var(--primary-muted)] text-[var(--primary)] flex items-center justify-center font-bold">
-                <ActivitySquare className="w-5 h-5" />
-              </div>
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-sm text-[var(--foreground)]">
-                    Active Patient: {caseGraph.demographics.fullName || "Unregistered Patient"}
-                  </span>
-                  <Badge variant="outline" size="sm">
-                    {caseGraph.demographics.age}Y • {caseGraph.demographics.gender}
-                  </Badge>
-                  {caseGraph.demographics.abhaId && (
-                    <Badge variant="primary" size="sm">
-                      ABHA: {caseGraph.demographics.abhaId}
-                    </Badge>
-                  )}
-                </div>
-                <span className="text-xs text-[var(--muted-foreground)]">
-                  Session: <span className="font-mono">{caseGraph.session.id}</span> • Status:{" "}
-                  <strong className="text-[var(--primary)]">{caseGraph.session.status}</strong> • Triage:{" "}
-                  <strong>{caseGraph.triageAlerts[0]?.severity || "ROUTINE"}</strong>
-                </span>
-              </div>
+        <div className="relative grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white/70 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-sky-700 shadow-sm backdrop-blur-sm">
+              <Sparkles className="h-3.5 w-3.5" />
+              {copy.badge}
             </div>
 
-            <div className="flex items-center gap-2">
-              <Link href="/clinician">
-                <Button variant="primary" size="sm" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
-                  Review in Cockpit
+            <div className="space-y-4">
+              <h1 className="max-w-xl text-4xl font-black tracking-[-0.05em] text-slate-900 sm:text-5xl lg:text-6xl">
+                {copy.heading}
+              </h1>
+              <p className="max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
+                {copy.subheading}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Link href="/patient">
+                <Button variant="primary" size="lg" rightIcon={<ArrowRight className="h-4 w-4" />}>
+                  {copy.ctaPrimary}
                 </Button>
               </Link>
               <Link href="/patient">
-                <Button variant="outline" size="sm">
-                  Resume Intake
+                <Button variant="secondary" size="lg">
+                  {copy.ctaSecondary}
                 </Button>
               </Link>
             </div>
-          </div>
 
-          {/* 6-Stage Journey Tracker */}
-          <div className="pt-4 border-t border-[var(--border-subtle)] flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">
-                Approved 6-Stage Patient Clinical Journey Pipeline
-              </span>
-              <span className="text-[11px] font-mono text-[var(--primary)]">
-                Isolated Triage &amp; Evidence Grounding
-              </span>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/patient">
+                <Button variant="outline" size="md">
+                  {copy.ctaTertiary}
+                </Button>
+              </Link>
+              <Link href="/patient">
+                <Button variant="ghost" size="md">
+                  {copy.ctaQuaternary}
+                </Button>
+              </Link>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
-              {[
-                { step: "1", title: "Identify", desc: "ABHA / Token ID", icon: <User className="w-3.5 h-3.5" /> },
-                { step: "2", title: "Consent", desc: "DPDP 2023 Audio", icon: <Lock className="w-3.5 h-3.5" /> },
-                { step: "3", title: "Converse", desc: "Voice / Touch / Pain Map", icon: <Globe2 className="w-3.5 h-3.5" /> },
-                { step: "4", title: "Scan", desc: "Source Truth OCR", icon: <FileSpreadsheet className="w-3.5 h-3.5" /> },
-                { step: "5", title: "Summarize", desc: "Deterministic Triage", icon: <HeartPulse className="w-3.5 h-3.5" /> },
-                { step: "6", title: "Consult", desc: "Physician Verification", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
-              ].map((j) => (
-                <div
-                  key={j.step}
-                  className="flex flex-col p-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]/80 backdrop-blur-sm gap-1 hover:border-[var(--primary)] transition-all"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-[var(--primary)] font-mono">STAGE {j.step}</span>
-                    <span className="text-[var(--muted-foreground)]">{j.icon}</span>
+
+            <div className="grid gap-3 pt-2 sm:grid-cols-3">
+              {benefits.map(({ title, description, icon: Icon }) => (
+                <div key={title} className="rounded-2xl border border-sky-100 bg-white/80 p-4 shadow-sm backdrop-blur-sm">
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
+                    <Icon className="h-5 w-5" />
                   </div>
-                  <span className="text-xs font-bold text-[var(--foreground)]">{j.title}</span>
-                  <span className="text-[10px] text-[var(--muted-foreground)] leading-tight">{j.desc}</span>
+                  <div className="text-xs font-bold tracking-[0.2em] text-sky-700">{title}</div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* 8 Synthetic Clinical Scenarios 1-Click Launch Grid */}
-      <section className="flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <h2 className="text-lg font-bold text-[var(--foreground)] tracking-tight flex items-center gap-2">
-              <PlayCircle className="w-5 h-5 text-[var(--primary)]" />
-              1-Click Synthetic Clinical Test Scenarios
-            </h2>
-            <p className="text-xs text-[var(--muted-foreground)]">
-              Pre-curated clinical test cases demonstrating diverse OPD demographics, acute red flags, low-literacy needs, and AYUSH integration.
-            </p>
-          </div>
-          <Badge variant="outline" className="text-xs font-mono self-start sm:self-auto">
-            {SYNTHETIC_SCENARIOS.length} Scenarios Available
-          </Badge>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {SYNTHETIC_SCENARIOS.map((scenario) => {
-            const isSelected =
-              caseGraph.session.id === scenario.caseGraph.session.id ||
-              caseGraph.demographics.fullName === scenario.caseGraph.demographics.fullName;
-
-            return (
-              <div
-                key={scenario.id}
-                className={`p-4 rounded-2xl border transition-all flex flex-col justify-between gap-3 ${
-                  isSelected
-                    ? "border-[var(--primary)] bg-[var(--primary-muted)]/30 ring-2 ring-[var(--primary)]/30"
-                    : "border-[var(--border)] bg-[var(--surface)] hover:border-[var(--border-strong)]"
-                }`}
-              >
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between gap-1">
-                    <Badge variant="primary-muted" size="sm">
-                      {scenario.badge}
-                    </Badge>
-                    <span className="text-[10px] font-mono text-[var(--muted-foreground)]">
-                      {scenario.caseGraph.demographics.age}Y • {scenario.caseGraph.demographics.gender}
-                    </span>
-                  </div>
-
-                  <span className="font-bold text-sm text-[var(--foreground)] leading-snug">
-                    {scenario.name}
-                  </span>
-
-                  <p className="text-xs text-[var(--muted-foreground)] line-clamp-2">
-                    {scenario.description}
-                  </p>
+          <div className="relative">
+            <div className="relative mx-auto max-w-md rounded-[30px] border border-sky-200 bg-white/80 p-5 shadow-[0_30px_80px_rgba(14,116,144,0.12)] backdrop-blur-md">
+              <div className="mb-5 flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{copy.supportTitle}</p>
+                  <h2 className="mt-1 text-2xl font-bold text-slate-900">{copy.assistantTitle}</h2>
                 </div>
-
-                <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)]">
-                  <span className="text-[10px] font-semibold text-[var(--primary)] truncate max-w-[120px]">
-                    {scenario.caseGraph.demographics.fullName}
-                  </span>
-                  <Button
-                    variant={isSelected ? "primary" : "outline"}
-                    size="sm"
-                    onClick={() => loadScenario(scenario.id)}
-                  >
-                    {isSelected ? "Active Case" : "Load Scenario"}
-                  </Button>
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-500 text-white shadow-lg shadow-sky-200/70">
+                  <HeartPulse className="h-6 w-6" />
                 </div>
               </div>
-            );
-          })}
+
+              <div className="space-y-3 rounded-2xl bg-sky-50 p-4">
+                <div className="flex items-start gap-3 rounded-2xl bg-white p-3 shadow-sm">
+                  <div className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-cyan-100 text-cyan-700">
+                    <Sparkles className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-800">{copy.assistantPrompt}</p>
+                    <p className="mt-1 text-xs leading-5 text-slate-600">{copy.assistantHelp}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between rounded-2xl border border-sky-200 bg-white px-3 py-2">
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <Mic className="h-4 w-4 text-sky-600" />
+                    {copy.listeningLabel}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                    <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                    <span className="h-2 w-2 rounded-full bg-emerald-300" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-sm font-semibold text-slate-700">{copy.storyTitle}</p>
+                  <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-700">
+                    {copy.storyMeta}
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  {journey.map(({ step, title, description }) => (
+                    <div key={step} className="flex items-center gap-3 rounded-xl bg-white px-3 py-2 shadow-sm">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-100 text-xs font-bold text-sky-700">
+                        {step}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-slate-800">{title}</p>
+                        <p className="text-xs text-slate-500">{description}</p>
+                      </div>
+                      {Number(step) < 5 && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Modular System Surfaces */}
-      <section className="flex flex-col gap-4">
-        <div>
-          <h2 className="text-lg font-bold text-[var(--foreground)] tracking-tight">System Application Surfaces</h2>
-          <p className="text-xs text-[var(--muted-foreground)]">
-            Role-specific workspaces engineered for Indian public health infrastructure.
-          </p>
+      <section className="mt-8 rounded-[28px] border border-sky-100 bg-white p-6 shadow-sm sm:p-8">
+        <div className="grid gap-5 md:grid-cols-3">
+          <div className="rounded-2xl bg-sky-50 p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-sky-700">What is this application?</p>
+            <p className="mt-3 text-base leading-7 text-slate-700">
+              A calm digital companion that helps you prepare a complete health story before seeing your doctor.
+            </p>
+          </div>
+          <div className="rounded-2xl bg-violet-50 p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-violet-700">How will it help me?</p>
+            <p className="mt-3 text-base leading-7 text-slate-700">
+              It listens, structures your symptoms, gathers reports, and turns scattered details into a clear summary.
+            </p>
+          </div>
+          <div className="rounded-2xl bg-emerald-50 p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-700">What should I do next?</p>
+            <p className="mt-3 text-base leading-7 text-slate-700">
+              Start your intake, answer in your own words, upload old prescriptions, and review your health story.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-8 rounded-[28px] border border-slate-200 bg-slate-50 p-6 sm:p-8">
+        <div className="mb-6 flex items-center gap-3 text-slate-800">
+          <FileText className="h-5 w-5 text-sky-600" />
+          <h2 className="text-2xl font-bold tracking-tight">A simple 5-stage journey</h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {surfaceCards.map((surface) => (
-            <Card key={surface.href} elevated className="flex flex-col justify-between hover:border-[var(--primary)] transition-colors">
-              <CardHeader className="flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <div className="p-2.5 rounded-xl bg-[var(--muted)]">{surface.icon}</div>
-                  <Badge variant="outline">{surface.badge}</Badge>
-                </div>
-                <div>
-                  <CardTitle>{surface.title}</CardTitle>
-                  <CardDescription className="mt-1 leading-relaxed text-xs sm:text-sm">
-                    {surface.description}
-                  </CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-2 flex items-center justify-between border-t border-[var(--border-subtle)]">
-                <span className="text-xs font-mono text-[var(--muted-foreground)]">
-                  Status: <strong className="text-[var(--foreground)]">{surface.status}</strong>
-                </span>
-                <Link href={surface.href}>
-                  <Button variant="secondary" size="md" rightIcon={<ArrowRight className="w-4 h-4" />}>
-                    {surface.actionText}
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+        <div className="grid gap-4 md:grid-cols-5">
+          {journey.map(({ step, title, description }) => (
+            <div key={step} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-sky-100 text-sm font-bold text-sky-700">
+                {step}
+              </div>
+              <p className="text-base font-bold text-slate-800">{title}</p>
+              <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* Clinical Safety & Regulatory Pillars */}
-      <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 flex flex-col gap-4">
-        <div className="flex items-center gap-2">
-          <Layers className="w-5 h-5 text-[var(--primary)]" />
-          <h3 className="text-sm font-bold text-[var(--foreground)] uppercase tracking-wider">
-            Clinical Safety &amp; Interoperability Commitments
-          </h3>
+      <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700">
+            <Mic className="h-5 w-5" />
+          </div>
+          <h3 className="text-lg font-bold text-slate-800">Voice-first conversation</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">Speak in the language you are most comfortable with and keep your health story natural.</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-          <div className="flex flex-col gap-1.5 p-3.5 rounded-xl bg-[var(--muted)]/50 border border-[var(--border-subtle)]">
-            <div className="flex items-center gap-1.5 text-[var(--danger)] font-bold">
-              <ShieldAlert className="w-4 h-4" />
-              <span>Deterministic Triage</span>
-            </div>
-            <span className="text-[var(--muted-foreground)] leading-relaxed">
-              Critical red-flag rules (ACS, stroke, anaphylaxis) execute via isolated deterministic code without LLM hallucination risk.
-            </span>
+        <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
+            <Camera className="h-5 w-5" />
           </div>
-
-          <div className="flex flex-col gap-1.5 p-3.5 rounded-xl bg-[var(--muted)]/50 border border-[var(--border-subtle)]">
-            <div className="flex items-center gap-1.5 text-[var(--primary)] font-bold">
-              <FileCheck2 className="w-4 h-4" />
-              <span>Source Truth OCR</span>
-            </div>
-            <span className="text-[var(--muted-foreground)] leading-relaxed">
-              Extracted paper prescriptions strictly preserve verbatim dosages. Zero invented medication strengths or unilateral diagnoses.
-            </span>
+          <h3 className="text-lg font-bold text-slate-800">Smart document capture</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">Upload old prescriptions, lab reports, and other health records in a few taps.</p>
+        </div>
+        <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+            <Stethoscope className="h-5 w-5" />
           </div>
-
-          <div className="flex flex-col gap-1.5 p-3.5 rounded-xl bg-[var(--muted)]/50 border border-[var(--border-subtle)]">
-            <div className="flex items-center gap-1.5 text-[var(--success)] font-bold">
-              <Lock className="w-4 h-4" />
-              <span>DPDP Act 2023 Audio Rules</span>
-            </div>
-            <span className="text-[var(--muted-foreground)] leading-relaxed">
-              Audio recordings automatically purged within 24 hours of consultation verification. Granular, revocable patient consent.
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-1.5 p-3.5 rounded-xl bg-[var(--muted)]/50 border border-[var(--border-subtle)]">
-            <div className="flex items-center gap-1.5 text-[var(--warning)] font-bold">
-              <Cpu className="w-4 h-4" />
-              <span>Provider-Agnostic Gateway</span>
-            </div>
-            <span className="text-[var(--muted-foreground)] leading-relaxed">
-              Standardized AI Gateway decouples clinical synthesis from specific cloud vendors, enabling local edge or sovereign LLM execution.
-            </span>
-          </div>
+          <h3 className="text-lg font-bold text-slate-800">Doctor-ready summary</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">Review a clear, organized summary before your appointment and share it confidently.</p>
         </div>
       </section>
     </div>

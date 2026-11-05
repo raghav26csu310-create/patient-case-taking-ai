@@ -27,6 +27,25 @@ interface SpeechRecognitionInstance {
   onend: (() => void) | null;
 }
 
+const resolveSpeechLanguageCode = (language: string): string => {
+  switch (language) {
+    case "hi":
+    case "hinglish":
+      return "hi-IN";
+    case "bn":
+      return "bn-IN";
+    case "ta":
+      return "ta-IN";
+    case "te":
+      return "te-IN";
+    case "mr":
+      return "mr-IN";
+    case "en":
+    default:
+      return "en-IN";
+  }
+};
+
 type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
 
 declare global {
@@ -59,25 +78,21 @@ export class BrowserSpeechAdapter implements SpeechService {
 
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRec) {
-      logger.warn("BrowserSpeechAdapter", "SpeechRecognition API not supported in this browser. Emulating speech input.");
-      // Graceful emulation for demo environments
-      setTimeout(() => {
-        onResult({
-          transcript: language === "hi" ? "मुझे दो दिन से सीने में दर्द है" : "I have had chest pain for two days",
-          confidence: 0.95,
-          isFinal: true,
-          languageDetected: language,
-          sourceProvider: "BROWSER_SPEECH_API",
-        });
-      }, 1500);
+      logger.warn("BrowserSpeechAdapter", "SpeechRecognition API not supported in this browser.");
+      onError("Speech recognition is not available in this browser. Please use text input instead.");
       return;
     }
 
     try {
+      if (this.recognition) {
+        this.recognition.stop();
+        this.recognition = null;
+      }
+
       this.recognition = new SpeechRec();
       this.recognition.continuous = false;
       this.recognition.interimResults = true;
-      this.recognition.lang = language === "hi" ? "hi-IN" : language === "bn" ? "bn-IN" : language === "ta" ? "ta-IN" : "en-IN";
+      this.recognition.lang = resolveSpeechLanguageCode(language);
 
       this.recognition.onresult = (event: SpeechRecognitionEvent) => {
         for (let i = event.resultIndex; i < event.results.length; ++i) {
@@ -98,13 +113,27 @@ export class BrowserSpeechAdapter implements SpeechService {
 
       this.recognition.onerror = (e) => {
         logger.error("BrowserSpeechAdapter", "Speech recognition error", { error: e.error });
-        onError(e.error);
+        const friendlyError =
+          e.error === "not-allowed"
+            ? "Microphone access was blocked. Please allow access and try again."
+            : e.error === "no-speech"
+              ? "No speech was detected. Please speak a bit louder or try again."
+              : e.error === "network"
+                ? "Speech service is temporarily unavailable. Please try again or use text input."
+                : `Speech recognition failed: ${e.error}`;
+        this.recognition = null;
+        onError(friendlyError);
+      };
+
+      this.recognition.onend = () => {
+        this.recognition = null;
       };
 
       this.recognition.start();
     } catch (err) {
       logger.error("BrowserSpeechAdapter", "Failed to start recognition", { err });
-      onError("Microphone unavailable or permission denied");
+      this.recognition = null;
+      onError("Microphone unavailable or permission denied. Please use text input instead.");
     }
   }
 
@@ -129,7 +158,7 @@ export class BrowserSpeechAdapter implements SpeechService {
     this.cancelSpeech();
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = language === "hi" ? "hi-IN" : language === "bn" ? "bn-IN" : language === "ta" ? "ta-IN" : "en-IN";
+    utterance.lang = resolveSpeechLanguageCode(language);
     utterance.rate = 0.95; // Slightly slower for clinical clarity
 
     utterance.onend = () => {

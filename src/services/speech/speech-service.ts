@@ -42,25 +42,19 @@ export class MockSpeechService implements SpeechService {
 
   async startListening(
     language: string,
-    onResult: (result: SpeechRecognitionResult) => void
+    onResult: (result: SpeechRecognitionResult) => void,
+    onError?: (error: string) => void
   ): Promise<void> {
     this.isListening = true;
     logger.debug("MockSpeechService", "Mock listening started", { language });
 
     setTimeout(() => {
       if (this.isListening) {
-        onResult({
-          transcript:
-            language === "hi"
-              ? "[DEMO] मुझे दो दिन से सीने में भारीपन लग रहा है"
-              : "[DEMO] I have had heavy chest discomfort for two days",
-          confidence: 0.98,
-          isFinal: true,
-          languageDetected: language,
-          sourceProvider: "MOCK",
-        });
+        logger.warn("MockSpeechService", "Browser speech recognition unavailable; falling back to text input.");
+        this.isListening = false;
+        onError?.("Speech recognition is unavailable in this browser. Please use text input instead.");
       }
-    }, 1500);
+    }, 300);
   }
 
   async stopListening(): Promise<void> {

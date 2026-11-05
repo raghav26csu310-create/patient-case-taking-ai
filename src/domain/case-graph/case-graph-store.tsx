@@ -55,11 +55,12 @@ export interface CaseGraphContextValue {
   setPhysicianVerified: (verified: boolean, clinicianId?: string, notes?: string) => void;
 }
 
-const defaultScenario = SYNTHETIC_SCENARIOS[2].caseGraph; // Default to Acute Chest Pain (Scenario 3) for rich demo experience
+const defaultScenario = SYNTHETIC_SCENARIOS[2]?.caseGraph ?? SYNTHETIC_SCENARIOS[0]?.caseGraph;
 
 const CaseGraphContext = createContext<CaseGraphContextValue | null>(null);
 
 const STORAGE_KEY = "sih26047_active_case_graph";
+const LANGUAGE_STORAGE_KEY = "sih26047_language_preference";
 
 export function CaseGraphProvider({ children }: { children: React.ReactNode }) {
   const [caseGraph, setCaseGraph] = useState<PatientCaseGraph>(defaultScenario);
@@ -70,12 +71,35 @@ export function CaseGraphProvider({ children }: { children: React.ReactNode }) {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        setCaseGraph(JSON.parse(saved));
+        const parsed = JSON.parse(saved) as PatientCaseGraph;
+        setCaseGraph(parsed);
+      }
+
+      const storedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY) as PatientLanguage | null;
+      const supportedLanguages = ["en", "hi", "hinglish", "bn", "ta", "te", "mr"] as const;
+      if (storedLanguage && supportedLanguages.includes(storedLanguage as (typeof supportedLanguages)[number])) {
+        setCaseGraph((previous) => ({
+          ...previous,
+          session: { ...previous.session, language: storedLanguage, updatedAt: new Date().toISOString() },
+          demographics: { ...previous.demographics, preferredLanguage: storedLanguage },
+        }));
       }
     } catch {
       // Ignore storage errors on restricted environments
     }
   }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.documentElement.lang = caseGraph.session.language;
+    document.documentElement.dir = "ltr";
+    document.documentElement.dataset.lang = caseGraph.session.language;
+    try {
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, caseGraph.session.language);
+    } catch {
+      // Ignore storage errors on restricted environments
+    }
+  }, [caseGraph.session.language]);
 
   // Sync state to local session
   const saveState = (updated: PatientCaseGraph) => {
@@ -104,7 +128,7 @@ export function CaseGraphProvider({ children }: { children: React.ReactNode }) {
       session: {
         id: `sess-${Date.now()}`,
         patientId: `pat-${Date.now()}`,
-        language: "hi",
+        language: caseGraph.session.language,
         interactionMode: "VOICE",
         status: "IDENTIFYING",
         createdAt: new Date().toISOString(),
@@ -115,7 +139,7 @@ export function CaseGraphProvider({ children }: { children: React.ReactNode }) {
         fullName: "",
         age: 30,
         gender: "MALE",
-        preferredLanguage: "hi",
+        preferredLanguage: caseGraph.session.language,
         visitType: "NEW",
         registeredAt: new Date().toISOString(),
       },
@@ -126,7 +150,7 @@ export function CaseGraphProvider({ children }: { children: React.ReactNode }) {
         hasConsentedToDocumentProcessing: false,
         hasConsentedToClinicalSynthesis: false,
         audioPlaybackListened: false,
-        consentLanguage: "hi",
+        consentLanguage: caseGraph.session.language,
         consentedAt: new Date().toISOString(),
         consentMethod: "TOUCH_SCREEN_SELECTION",
         dataRetentionHours: 24,
@@ -149,11 +173,17 @@ export function CaseGraphProvider({ children }: { children: React.ReactNode }) {
   };
 
   const setLanguage = (lang: PatientLanguage) => {
-    saveState({
+    const nextGraph = {
       ...caseGraph,
       session: { ...caseGraph.session, language: lang, updatedAt: new Date().toISOString() },
       demographics: { ...caseGraph.demographics, preferredLanguage: lang },
-    });
+    };
+    saveState(nextGraph);
+    try {
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+    } catch {
+      // Ignore storage errors on restricted environments
+    }
   };
 
   const setInteractionMode = (mode: InteractionMode) => {

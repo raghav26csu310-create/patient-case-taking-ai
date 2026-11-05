@@ -22,7 +22,7 @@ export function ScenarioSwitcher() {
         className="fixed bottom-4 right-4 z-40 inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-[var(--surface-elevated)] border-2 border-[var(--primary)] text-[var(--foreground)] text-xs font-bold shadow-xl hover:bg-[var(--primary-muted)] transition-all cursor-pointer group"
       >
         <Sparkles className="w-4 h-4 text-[var(--primary)] group-hover:rotate-12 transition-transform" />
-        <span>1-Click Clinical Scenarios ({SYNTHETIC_SCENARIOS.length})</span>
+        <span>Curated demo scenarios ({SYNTHETIC_SCENARIOS.length})</span>
         <Badge variant="warning" size="sm">
           DEMO
         </Badge>
@@ -72,13 +72,16 @@ export function ScenarioSwitcher() {
               variant="outline"
               size="sm"
               onClick={() => {
-                resetToNewPatient();
-                setIsOpen(false);
+                const shouldReset = window.confirm("Clear the current demo session only? This does not delete any real patient records.");
+                if (shouldReset) {
+                  resetToNewPatient();
+                  setIsOpen(false);
+                }
               }}
               leftIcon={<RotateCcw className="w-4 h-4" />}
               className="w-full text-xs"
             >
-              Reset to Blank Patient Intake (Start New Intake)
+              Reset demo intake only
             </Button>
           </div>
         </div>

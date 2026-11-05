@@ -13,7 +13,7 @@ export interface ScenarioMeta {
   caseGraph: PatientCaseGraph;
 }
 
-export const SYNTHETIC_SCENARIOS: ScenarioMeta[] = [
+export const ORIGINAL_SYNTHETIC_SCENARIOS: ScenarioMeta[] = [
   // 1. Routine Patient
   {
     id: "scenario-routine",
@@ -1088,3 +1088,14 @@ export const SYNTHETIC_SCENARIOS: ScenarioMeta[] = [
     },
   },
 ];
+
+export const SYNTHETIC_SCENARIOS = ORIGINAL_SYNTHETIC_SCENARIOS.filter((scenario) =>
+  [
+    "scenario-routine",
+    "scenario-elderly-vernacular",
+    "scenario-acute-chest-pain",
+    "scenario-voice-respiratory",
+    "scenario-document-heavy",
+    "scenario-ayush-assessment",
+  ].includes(scenario.id)
+);

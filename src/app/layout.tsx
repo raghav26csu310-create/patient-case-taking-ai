@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import "./globals.css";
 import { Navbar } from "@/components/layout/navbar";
 import { AccessibilityBar } from "@/components/accessibility/accessibility-bar";
@@ -6,9 +6,9 @@ import { CaseGraphProvider } from "@/domain/case-graph/case-graph-store";
 import { ScenarioSwitcher } from "@/components/scenarios/scenario-switcher";
 
 export const metadata: Metadata = {
-  title: "SIH26047 — Patient Case-Taking Software",
+  title: "SAATHI — Your Personal AI Health Companion",
   description:
-    "First-mile clinical case-taking intelligence for high-volume Indian Outpatient Departments (OPDs).",
+    "A patient-first AI health companion that helps people tell their story, organize medical documents, and prepare for a doctor consultation.",
 };
 
 export default function RootLayout({
